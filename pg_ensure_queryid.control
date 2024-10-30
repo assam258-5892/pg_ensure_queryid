@@ -1,4 +1,4 @@
 comment = 'Helper for eXperDB'
 default_version = '1.0'
-module_pathname = '$libdir/pg_inzent_helper'
+module_pathname = '$libdir/pg_ensure_queryid'
 relocatable = true

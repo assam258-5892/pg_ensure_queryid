@@ -17,7 +17,7 @@
 #include <math.h>
 #include <errno.h>
 
-#include "pg_inzent_helper.h"
+#include "pg_ensure_queryid.h"
 
 PG_MODULE_MAGIC;
 
@@ -28,8 +28,8 @@ static bool use_query_id_tracking = true;
 
 void _PG_init(void);
 
-DECLARE_HOOK(void inzent_ExecutorRun, QueryDesc *queryDesc, ScanDirection direction, uint64 count, bool execute_once);
-DECLARE_HOOK(void inzent_ProcessUtility, PlannedStmt *pstmt, const char *queryString,
+DECLARE_HOOK(void pgeq_ExecutorRun, QueryDesc *queryDesc, ScanDirection direction, uint64 count, bool execute_once);
+DECLARE_HOOK(void pgeq_ProcessUtility, PlannedStmt *pstmt, const char *queryString,
 			 bool readOnlyTree,
 			 ProcessUtilityContext context,
 			 ParamListInfo params, QueryEnvironment *queryEnv,
@@ -41,14 +41,14 @@ _PG_init(void)
 {
 #if PG_VERSION_NUM >= 140000
 	prev_ExecutorRun = ExecutorRun_hook;
-	ExecutorRun_hook = HOOK(inzent_ExecutorRun);
+	ExecutorRun_hook = HOOK(pgeq_ExecutorRun);
 
 	prev_ProcessUtility = ProcessUtility_hook;
-	ProcessUtility_hook = HOOK(inzent_ProcessUtility);
+	ProcessUtility_hook = HOOK(pgeq_ProcessUtility);
 
 	EnableQueryId();
 
-	DefineCustomBoolVariable("pg_inzent_helper.use_query_id_tracking",
+	DefineCustomBoolVariable("pg_ensure_queryid.use_query_id_tracking",
 							"If the value of pg_stat_activity.query_id is 0, assign the query_id for the SQL currently being executed by the executor.",
 							NULL,
 							&use_query_id_tracking,
@@ -62,7 +62,7 @@ _PG_init(void)
 }
 
 static void
-inzent_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count,
+pgeq_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count,
 				 bool execute_once)
 {
 #if PG_VERSION_NUM >= 140000
@@ -85,7 +85,7 @@ inzent_ExecutorRun(QueryDesc *queryDesc, ScanDirection direction, uint64 count,
 }
 
 static void
-inzent_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
+pgeq_ProcessUtility(PlannedStmt *pstmt, const char *queryString,
 					  bool readOnlyTree,
 					  ProcessUtilityContext context,
 					  ParamListInfo params, QueryEnvironment *queryEnv,

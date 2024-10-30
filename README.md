@@ -1,4 +1,4 @@
-# pg_inzent_helper
+# pg_ensure_queryid
 
 # Table of contents
 - [Installation](#installation)
@@ -13,7 +13,7 @@ $ make install
 
 2. Modify postgresql.conf
 ```bash
-shared_preload_libraries = 'pg_inzent_helper'
+shared_preload_libraries = 'pg_ensure_queryid'
 ```
 
 3. Restart postgres
@@ -22,6 +22,8 @@ pg_ctl restart
 ```
 
 # GUC
-pg_inzent_helper.use_query_id_tracking
+pg_ensure_queryid.use_query_id_tracking
 - on : enable query_id tracking on extended PreferQueryMode (default)
 - off : disable query_id tracking on extended PreferQueryMode
+
+Note: This option does not require a server restart
